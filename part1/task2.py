@@ -15,61 +15,69 @@ Source: '1'   Target: '50'   Energy Budget: 287932
 """
 
 import json
+import os
 from collections import deque
 
-with open('G.json')    as f: G    = json.load(f)
-with open('Dist.json') as f: Dist = json.load(f)
-with open('Cost.json') as f: Cost = json.load(f)
+BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-SOURCE        = '1'
-TARGET        = '50'
-ENERGY_BUDGET = 287932
+def run():
+    with open(os.path.join(BASE, 'data', 'G.json'))    as f: G    = json.load(f)
+    with open(os.path.join(BASE, 'data', 'Dist.json')) as f: Dist = json.load(f)
+    with open(os.path.join(BASE, 'data', 'Cost.json')) as f: Cost = json.load(f)
 
-# ── BFS ───────────────────────────────────────────────────────
-# Queue entries: (node, energy_used)
-# best_energy[node] = minimum energy used to reach node so far
-# prev[node]        = parent node on the discovered path
+    SOURCE        = '1'
+    TARGET        = '50'
+    ENERGY_BUDGET = 287932
 
-queue       = deque()
-best_energy = {SOURCE: 0}
-prev        = {SOURCE: None}
-found       = False
+    # ── BFS ───────────────────────────────────────────────────────
+    # Queue entries: (node, energy_used)
+    # best_energy[node] = minimum energy used to reach node so far
+    # prev[node]        = parent node on the discovered path
 
-queue.append((SOURCE, 0))
+    queue       = deque()
+    best_energy = {SOURCE: 0}
+    prev        = {SOURCE: None}
+    found       = False
 
-while queue:
-    node, energy = queue.popleft()    # FIFO -> breadth-first
+    queue.append((SOURCE, 0))
 
-    if node == TARGET:
-        found = True
-        break
+    while queue:
+        node, energy = queue.popleft()    # FIFO -> breadth-first
 
-    for v in G.get(node, []):
-        new_energy = energy + Cost[f'{node},{v}']
+        if node == TARGET:
+            found = True
+            break
 
-        # Skip if over budget
-        if new_energy > ENERGY_BUDGET:
-            continue
+        for v in G.get(node, []):
+            new_energy = energy + Cost[f'{node},{v}']
 
-        # Only enqueue if arriving with better (lower) energy than before
-        if new_energy < best_energy.get(v, float('inf')):
-            best_energy[v] = new_energy
-            prev[v]        = node
-            queue.append((v, new_energy))
+            # Skip if over budget
+            if new_energy > ENERGY_BUDGET:
+                continue
 
-# ── Reconstruct path ──────────────────────────────────────────
-if not found:
-    print("No feasible path found within the energy budget.")
-else:
-    path, node = [], TARGET
-    while node is not None:
-        path.append(node)
-        node = prev[node]
-    path.reverse()
+            # Only enqueue if arriving with better (lower) energy than before
+            if new_energy < best_energy.get(v, float('inf')):
+                best_energy[v] = new_energy
+                prev[v]        = node
+                queue.append((v, new_energy))
 
-    total_dist = sum(Dist[f'{path[i]},{path[i+1]}'] for i in range(len(path)-1))
-    total_cost = sum(Cost[f'{path[i]},{path[i+1]}'] for i in range(len(path)-1))
+    # ── Reconstruct path ──────────────────────────────────────────
+    if not found:
+        print("No feasible path found within the energy budget.")
+    else:
+        path, node = [], TARGET
+        while node is not None:
+            path.append(node)
+            node = prev[node]
+        path.reverse()
 
-    print(f"Shortest path: {'->'.join(path)}")
-    print(f"Shortest distance: {total_dist}")
-    print(f"Total energy cost: {total_cost}")
+        # ── Output ────────────────────────────────────────────────
+        total_dist = sum(Dist[f'{path[i]},{path[i+1]}'] for i in range(len(path)-1))
+        total_cost = sum(Cost[f'{path[i]},{path[i+1]}'] for i in range(len(path)-1))
+
+        print(f"Shortest path: {'->'.join(path)}")
+        print(f"Shortest distance: {total_dist}")
+        print(f"Total energy cost: {total_cost}")
+
+if __name__ == '__main__':
+    run()
