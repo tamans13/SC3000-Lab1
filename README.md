@@ -91,10 +91,12 @@ python3 main.py
 
 This will sequentially execute:
 
-1. NYC shortest path computation  
-2. Gridworld **Value Iteration & Policy Iteration**  
-3. **Monte Carlo learning**  
-4. **Q-Learning**
+1. NYC shortest path — **Dijkstra** (no energy constraint)
+2. NYC shortest path — **BFS** (with energy constraint)
+3. NYC shortest path — **A\* Search** (with energy constraint)
+4. Gridworld **Value Iteration & Policy Iteration**  
+5. **Monte Carlo learning**  
+6. **Q-Learning**
 
 # Running Individual Tasks
 
