@@ -16,8 +16,22 @@ from part2.gridworld import (
 
 # ── Part 1 ──────────────────────────────────────────────
 def solve_part1():
-    # your NYC shortest path code here
-    pass
+    from part1 import task1, task2, task3
+
+    print("=" * 60)
+    print("TASK 1: Dijkstra (No Energy Constraint)")
+    print("=" * 60)
+    task1.run()
+
+    print("\n" + "=" * 60)
+    print("TASK 2: BFS (With Energy Constraint)")
+    print("=" * 60)
+    task2.run()
+
+    print("\n" + "=" * 60)
+    print("TASK 3: A* (With Energy Constraint)")
+    print("=" * 60)
+    task3.run()
 
 # ── Part 2 ──────────────────────────────────────────────
 def solve_part2():
