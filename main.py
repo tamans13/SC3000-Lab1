@@ -19,6 +19,10 @@ def solve_part1():
     from part1 import task1, task2, task3
 
     print("=" * 60)
+    print("PART 1: FINDING A SHORTEST PATH WITH AN ENERGY BUDGET")
+    print("=" * 60)
+
+    print("\n" + "=" * 60)
     print("TASK 1: Dijkstra (No Energy Constraint)")
     print("=" * 60)
     task1.run()
@@ -32,13 +36,38 @@ def solve_part1():
     print("TASK 3: A* (With Energy Constraint)")
     print("=" * 60)
     task3.run()
+    
+    print("\n" + "=" * 60)
+    print("SUMMARY")
+    print("=" * 60)
+    print("""
+  Task 1 (Dijkstra):
+    Finds the globally optimal shortest path from node 1 to node 50
+    using a min-heap priority queue. No energy constraint applied.
+
+  Task 2 (BFS):
+    Finds a shortest path within the energy budget of 287,932 using
+    a FIFO queue. Pruning via best_energy dictionary prevents
+    redundant re-exploration of nodes via costlier energy routes.
+
+  Task 3 (A*):
+    Finds the shortest path within the energy budget of 287,932 using
+    an admissible Euclidean heuristic. The Pareto-label approach
+    tracks multiple (distance, energy) labels per node to avoid
+    discarding paths that trade off between distance and energy.
+    """)
 
 # ── Part 2 ──────────────────────────────────────────────
 def solve_part2():
+    
+    print("=" * 60)
+    print("PART 2: SOLVING MDP AND REINFORCEMENT LEARNING PROBLEMS USING A GRID WORLD")
+    print("=" * 60)
+    
     random.seed(42)
     np.random.seed(42)
 
-    print("=" * 60)
+    print("\n" + "=" * 60)
     print("TASK 1: Value Iteration & Policy Iteration")
     print("=" * 60)
 
