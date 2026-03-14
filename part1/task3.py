@@ -21,84 +21,98 @@ Source: '1'   Target: '50'   Energy Budget: 287932
 import json
 import heapq
 import math
+import os
 
-with open('G.json')     as f: G     = json.load(f)
-with open('Coord.json') as f: Coord = json.load(f)
-with open('Dist.json')  as f: Dist  = json.load(f)
-with open('Cost.json')  as f: Cost  = json.load(f)
+BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-SOURCE        = '1'
-TARGET        = '50'
-ENERGY_BUDGET = 287932
+def run():
+    with open(os.path.join(BASE, 'data', 'G.json'))     as f: G     = json.load(f)
+    with open(os.path.join(BASE, 'data', 'Coord.json')) as f: Coord = json.load(f)
+    with open(os.path.join(BASE, 'data', 'Dist.json'))  as f: Dist  = json.load(f)
+    with open(os.path.join(BASE, 'data', 'Cost.json'))  as f: Cost  = json.load(f)
 
-# ── Heuristic ─────────────────────────────────────────────────
-def h(node):
-    x1, y1 = Coord[node]
-    x2, y2 = Coord[TARGET]
-    return math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
+    SOURCE        = '1'
+    TARGET        = '50'
+    ENERGY_BUDGET = 287932
 
-# ── Pareto-label A* ───────────────────────────────────────────
-# Priority queue entries: (f, g, energy, node)
-# pareto[node] = list of (dist, energy) non-dominated labels
-# prev[(node, dist, energy)] = parent state tuple
+    # ── Heuristic ─────────────────────────────────────────────────
+    # Admissible heuristic: straight-line Euclidean distance to TARGET.
+    # Coord values are in the same unit system as Dist, so h(n) <= actual dist.
+    def h(node):
+        x1, y1 = Coord[node]
+        x2, y2 = Coord[TARGET]
+        return math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
 
-pareto = {SOURCE: [(0, 0)]}
-prev   = {(SOURCE, 0, 0): None}
-pq     = [(h(SOURCE), 0, 0, SOURCE)]
+    # ── Pareto-label A* ───────────────────────────────────────────
+    # Priority queue entries: (f, g, energy, node)
+    # pareto[node] = list of (dist, energy) non-dominated labels
+    # prev[(node, dist, energy)] = parent state tuple
 
-best_label = None
+    pareto = {SOURCE: [(0, 0)]}
+    prev   = {(SOURCE, 0, 0): None}
+    pq     = [(h(SOURCE), 0, 0, SOURCE)]
 
-def dominated(node, nd, ne):
-    for (d, e) in pareto.get(node, []):
-        if d <= nd and e <= ne:
-            return True
-    return False
+    best_label = None
 
-def add_label(node, nd, ne):
-    if dominated(node, nd, ne):
+    def dominated(node, nd, ne):
+        # A label is dominated if another label has BOTH lower dist AND lower energy
+        for (d, e) in pareto.get(node, []):
+            if d <= nd and e <= ne:
+                return True
         return False
-    # Remove labels that the new one dominates
-    pareto[node] = [(d, e) for (d, e) in pareto.get(node, [])
-                    if not (nd <= d and ne <= e)]
-    pareto[node].append((nd, ne))
-    return True
 
-while pq:
-    f, g, e, u = heapq.heappop(pq)
+    def add_label(node, nd, ne):
+        if dominated(node, nd, ne):
+            return False
+        # Remove labels that the new one dominates
+        pareto[node] = [(d, e) for (d, e) in pareto.get(node, [])
+                        if not (nd <= d and ne <= e)]
+        pareto[node].append((nd, ne))
+        return True
 
-    # Skip if this label is no longer on the Pareto frontier
-    if not any(abs(pd - g) < 1e-9 and pe == e
-               for (pd, pe) in pareto.get(u, [])):
-        continue
+    while pq:
+        f, g, e, u = heapq.heappop(pq)
 
-    if u == TARGET:
-        best_label = (g, e)
-        break
-
-    for v in G.get(u, []):
-        key = f'{u},{v}'
-        ng  = g + Dist[key]
-        ne  = e + Cost[key]
-        if ne > ENERGY_BUDGET:
+        # Skip if this label is no longer on the Pareto frontier
+        if not any(abs(pd - g) < 1e-9 and pe == e
+                   for (pd, pe) in pareto.get(u, [])):
             continue
-        if add_label(v, ng, ne):
-            prev[(v, ng, ne)] = (u, g, e)
-            heapq.heappush(pq, (ng + h(v), ng, ne, v))
 
-# ── Reconstruct path ──────────────────────────────────────────
-if best_label is None:
-    print("No feasible path found within the energy budget.")
-else:
-    path  = []
-    state = (TARGET, best_label[0], best_label[1])
-    while state is not None:
-        path.append(state[0])
-        state = prev.get(state)
-    path.reverse()
+        if u == TARGET:
+            best_label = (g, e)
+            break
 
-    total_dist = sum(Dist[f'{path[i]},{path[i+1]}'] for i in range(len(path)-1))
-    total_cost = sum(Cost[f'{path[i]},{path[i+1]}'] for i in range(len(path)-1))
+        for v in G.get(u, []):
+            key = f'{u},{v}'
+            ng  = g + Dist[key]
+            ne  = e + Cost[key]
 
-    print(f"Shortest path: {'->'.join(path)}")
-    print(f"Shortest distance: {total_dist}")
-    print(f"Total energy cost: {total_cost}")
+            # Skip if over budget
+            if ne > ENERGY_BUDGET:
+                continue
+
+            if add_label(v, ng, ne):
+                prev[(v, ng, ne)] = (u, g, e)
+                heapq.heappush(pq, (ng + h(v), ng, ne, v))
+
+    # ── Reconstruct path ──────────────────────────────────────────
+    if best_label is None:
+        print("No feasible path found within the energy budget.")
+    else:
+        path  = []
+        state = (TARGET, best_label[0], best_label[1])
+        while state is not None:
+            path.append(state[0])
+            state = prev.get(state)
+        path.reverse()
+
+        # ── Output ────────────────────────────────────────────────
+        total_dist = sum(Dist[f'{path[i]},{path[i+1]}'] for i in range(len(path)-1))
+        total_cost = sum(Cost[f'{path[i]},{path[i+1]}'] for i in range(len(path)-1))
+
+        print(f"Shortest path: {'->'.join(path)}")
+        print(f"Shortest distance: {total_dist}")
+        print(f"Total energy cost: {total_cost}")
+
+if __name__ == '__main__':
+    run()
