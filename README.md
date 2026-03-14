@@ -4,7 +4,10 @@ This project implements algorithms for **shortest path planning** and **reinforc
 
 The project contains:
 
-- **Part 1:** Shortest path computation using NYC map data  
+- **Part 1:** Shortest path computation using NYC map data
+  - Dijkstra's Algorithm (no energy constraint)
+  - BFS with energy budget constraint
+  - A* Search with energy budget constraint
 - **Part 2:** Gridworld reinforcement learning algorithms:
   - Value Iteration
   - Policy Iteration
@@ -20,6 +23,10 @@ All tasks can be run from a single entry point (`main.py`) or individually.
 ```
 sc3000-lab1/
 ├── main.py
+├── part1/
+│   ├── task1.py
+│   ├── task2.py
+│   └── task3.py
 ├── part2/
 │   ├── gridworld.py
 │   ├── task1_planning.py
@@ -37,6 +44,13 @@ sc3000-lab1/
 **main.py**  
 Runs the entire project including Part 1 and all Part 2 tasks.
 
+**part1/**  
+Contains shortest path implementations.
+
+- `task1.py` → Dijkstra's Algorithm (no energy constraint)
+- `task2.py` → BFS with energy budget constraint
+- `task3.py` → A* Search with energy budget constraint
+
 **part2/**  
 Contains reinforcement learning implementations.
 
@@ -46,7 +60,12 @@ Contains reinforcement learning implementations.
 - `task3_qlearning.py` → Q-Learning implementation  
 
 **data/**  
-fill in later
+Contains NYC road network data files.
+
+- `G.json` → Adjacency list of the road network graph
+- `Coord.json` → Node coordinates (used for A* heuristic)
+- `Dist.json` → Edge distances between node pairs
+- `Cost.json` → Edge energy costs between node pairs
 
 ---
 
@@ -78,6 +97,34 @@ This will sequentially execute:
 4. **Q-Learning**
 
 # Running Individual Tasks
+
+## Part 1 — Task 1 (Dijkstra's Algorithm)
+
+Runs **Dijkstra's Algorithm** to find the shortest path with no energy constraint.
+
+```bash
+python3 -m part1.task1
+```
+
+---
+
+## Part 1 — Task 2 (BFS with Energy Constraint)
+
+Runs **Breadth-First Search** to find the shortest path within the energy budget.
+
+```bash
+python3 -m part1.task2
+```
+
+---
+
+## Part 1 — Task 3 (A* Search with Energy Constraint)
+
+Runs **A* Search** to find the shortest path within the energy budget.
+
+```bash
+python3 -m part1.task3
+```
 
 ---
 
