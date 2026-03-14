@@ -63,7 +63,7 @@ Contains reinforcement learning implementations.
 Contains NYC road network data files.
 
 - `G.json` → Adjacency list of the road network graph
-- `Coord.json` → Node coordinates (used for A* heuristic)
+- `Coord.json` → Node coordinates
 - `Dist.json` → Edge distances between node pairs
 - `Cost.json` → Edge energy costs between node pairs
 
