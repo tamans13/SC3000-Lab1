@@ -1,3 +1,5 @@
+from typing import Optional
+
 from .gridworld import (ACTIONS, GOAL, GAMMA, all_states,
                        transitions, print_value_function,
                        print_policy, compare_policies)
@@ -63,8 +65,8 @@ def policy_iteration():
     """Compute optimal policy via Policy Iteration."""
     states = all_states()
     # Initialize arbitrary policy
-    policy = {s: 'Up' for s in states if s != GOAL}
-    policy[GOAL] = ''  # Goal state has no action
+    policy: dict[tuple[int, int], Optional[str]] = {s: 'Up' for s in states if s != GOAL}
+    policy[GOAL] = None  # Goal state has no action
 
     iteration = 0
     while True:
