@@ -18,9 +18,7 @@ from part2.gridworld import (
 def solve_part1():
     from part1 import task1, task2, task3
 
-    print("=" * 60)
     print("PART 1: FINDING A SHORTEST PATH WITH AN ENERGY BUDGET")
-    print("=" * 60)
 
     print("\n" + "=" * 60)
     print("TASK 1: Dijkstra (No Energy Constraint)")
@@ -60,9 +58,7 @@ def solve_part1():
 # ── Part 2 ──────────────────────────────────────────────
 def solve_part2():
     
-    print("=" * 60)
     print("PART 2: SOLVING MDP AND REINFORCEMENT LEARNING PROBLEMS USING A GRID WORLD")
-    print("=" * 60)
     
     random.seed(42)
     np.random.seed(42)
