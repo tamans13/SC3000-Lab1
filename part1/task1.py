@@ -11,52 +11,59 @@ Source: '1'   Target: '50'
 import json
 import heapq
 import math
+import os
 
-with open('G.json')    as f: G    = json.load(f)
-with open('Dist.json') as f: Dist = json.load(f)
-with open('Cost.json') as f: Cost = json.load(f)
+BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-SOURCE = '1'
-TARGET = '50'
+def run():
+    with open(os.path.join(BASE, 'data', 'G.json'))    as f: G    = json.load(f)
+    with open(os.path.join(BASE, 'data', 'Dist.json')) as f: Dist = json.load(f)
+    with open(os.path.join(BASE, 'data', 'Cost.json')) as f: Cost = json.load(f)
 
-# ── Dijkstra ──────────────────────────────────────────────────
-# Priority queue entries: (cumulative_dist, node)
-# dist[node] = best known distance to reach node so far
-# prev[node] = parent node on the best path
+    SOURCE = '1'
+    TARGET = '50'
 
-INF  = math.inf
-dist = {SOURCE: 0}
-prev = {SOURCE: None}
-pq   = [(0, SOURCE)]
+    # ── Dijkstra ──────────────────────────────────────────────────
+    # Priority queue entries: (cumulative_dist, node)
+    # dist[node] = best known distance to reach node so far
+    # prev[node] = parent node on the best path
 
-while pq:
-    d, u = heapq.heappop(pq)
+    INF  = math.inf
+    dist = {SOURCE: 0}
+    prev = {SOURCE: None}
+    pq   = [(0, SOURCE)]
 
-    if u == TARGET:
-        break
+    while pq:
+        d, u = heapq.heappop(pq)
 
-    # Skip outdated queue entries
-    if d > dist.get(u, INF):
-        continue
+        if u == TARGET:
+            break
 
-    for v in G.get(u, []):
-        nd = d + Dist[f'{u},{v}']
-        if nd < dist.get(v, INF):
-            dist[v] = nd
-            prev[v] = u
-            heapq.heappush(pq, (nd, v))
+        # Skip outdated queue entries
+        if d > dist.get(u, INF):
+            continue
 
-# ── Reconstruct path ──────────────────────────────────────────
-path, node = [], TARGET
-while node is not None:
-    path.append(node)
-    node = prev[node]
-path.reverse()
+        for v in G.get(u, []):
+            nd = d + Dist[f'{u},{v}']
+            if nd < dist.get(v, INF):
+                dist[v] = nd
+                prev[v] = u
+                heapq.heappush(pq, (nd, v))
 
-# ── Output ────────────────────────────────────────────────────
-total_dist = sum(Dist[f'{path[i]},{path[i+1]}'] for i in range(len(path)-1))
-total_cost = sum(Cost[f'{path[i]},{path[i+1]}'] for i in range(len(path)-1))
+    # ── Reconstruct path ──────────────────────────────────────────
+    path, node = [], TARGET
+    while node is not None:
+        path.append(node)
+        node = prev[node]
+    path.reverse()
 
-print(f"Shortest path: {'->'.join(path)}")
-print(f"Shortest distance: {total_dist}")
-print(f"Total energy cost: {total_cost}")
+    # ── Output ────────────────────────────────────────────────────
+    total_dist = sum(Dist[f'{path[i]},{path[i+1]}'] for i in range(len(path)-1))
+    total_cost = sum(Cost[f'{path[i]},{path[i+1]}'] for i in range(len(path)-1))
+
+    print(f"Shortest path: {'->'.join(path)}")
+    print(f"Shortest distance: {total_dist}")
+    print(f"Total energy cost: {total_cost}")
+
+if __name__ == '__main__':
+    run()
