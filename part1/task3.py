@@ -1,0 +1,104 @@
+"""
+SC3000 Lab Assignment 1 – Part 1, Task 3
+A* Search with Energy Budget Constraint
+
+A* uses a priority queue ordered by f = g + h where:
+  g = actual distance travelled so far
+  h = Euclidean distance to TARGET (admissible heuristic)
+
+The heuristic is admissible because straight-line distance
+never overestimates the actual road distance, guaranteeing
+the optimal solution is found.
+
+Uses the Pareto-label approach to handle the energy constraint:
+for each node, a Pareto frontier of (dist, energy) labels is kept.
+A new label is only explored if it is not dominated by an existing
+one (i.e. no existing label has both lower dist AND lower energy).
+
+Source: '1'   Target: '50'   Energy Budget: 287932
+"""
+
+import json
+import heapq
+import math
+
+with open('G.json')     as f: G     = json.load(f)
+with open('Coord.json') as f: Coord = json.load(f)
+with open('Dist.json')  as f: Dist  = json.load(f)
+with open('Cost.json')  as f: Cost  = json.load(f)
+
+SOURCE        = '1'
+TARGET        = '50'
+ENERGY_BUDGET = 287932
+
+# ── Heuristic ─────────────────────────────────────────────────
+def h(node):
+    x1, y1 = Coord[node]
+    x2, y2 = Coord[TARGET]
+    return math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
+
+# ── Pareto-label A* ───────────────────────────────────────────
+# Priority queue entries: (f, g, energy, node)
+# pareto[node] = list of (dist, energy) non-dominated labels
+# prev[(node, dist, energy)] = parent state tuple
+
+pareto = {SOURCE: [(0, 0)]}
+prev   = {(SOURCE, 0, 0): None}
+pq     = [(h(SOURCE), 0, 0, SOURCE)]
+
+best_label = None
+
+def dominated(node, nd, ne):
+    for (d, e) in pareto.get(node, []):
+        if d <= nd and e <= ne:
+            return True
+    return False
+
+def add_label(node, nd, ne):
+    if dominated(node, nd, ne):
+        return False
+    # Remove labels that the new one dominates
+    pareto[node] = [(d, e) for (d, e) in pareto.get(node, [])
+                    if not (nd <= d and ne <= e)]
+    pareto[node].append((nd, ne))
+    return True
+
+while pq:
+    f, g, e, u = heapq.heappop(pq)
+
+    # Skip if this label is no longer on the Pareto frontier
+    if not any(abs(pd - g) < 1e-9 and pe == e
+               for (pd, pe) in pareto.get(u, [])):
+        continue
+
+    if u == TARGET:
+        best_label = (g, e)
+        break
+
+    for v in G.get(u, []):
+        key = f'{u},{v}'
+        ng  = g + Dist[key]
+        ne  = e + Cost[key]
+        if ne > ENERGY_BUDGET:
+            continue
+        if add_label(v, ng, ne):
+            prev[(v, ng, ne)] = (u, g, e)
+            heapq.heappush(pq, (ng + h(v), ng, ne, v))
+
+# ── Reconstruct path ──────────────────────────────────────────
+if best_label is None:
+    print("No feasible path found within the energy budget.")
+else:
+    path  = []
+    state = (TARGET, best_label[0], best_label[1])
+    while state is not None:
+        path.append(state[0])
+        state = prev.get(state)
+    path.reverse()
+
+    total_dist = sum(Dist[f'{path[i]},{path[i+1]}'] for i in range(len(path)-1))
+    total_cost = sum(Cost[f'{path[i]},{path[i+1]}'] for i in range(len(path)-1))
+
+    print(f"Shortest path: {'->'.join(path)}")
+    print(f"Shortest distance: {total_dist}")
+    print(f"Total energy cost: {total_cost}")
