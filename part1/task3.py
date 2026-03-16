@@ -1,21 +1,7 @@
 """
-SC3000 Lab Assignment 1 – Part 1, Task 3
+
 A* Search with Energy Budget Constraint
 
-A* uses a priority queue ordered by f = g + h where:
-  g = actual distance travelled so far
-  h = Euclidean distance to TARGET (admissible heuristic)
-
-The heuristic is admissible because straight-line distance
-never overestimates the actual road distance, guaranteeing
-the optimal solution is found.
-
-Uses the Pareto-label approach to handle the energy constraint:
-for each node, a Pareto frontier of (dist, energy) labels is kept.
-A new label is only explored if it is not dominated by an existing
-one (i.e. no existing label has both lower dist AND lower energy).
-
-Source: '1'   Target: '50'   Energy Budget: 287932
 """
 
 import json
