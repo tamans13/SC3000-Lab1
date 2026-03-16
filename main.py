@@ -51,8 +51,8 @@ def solve_part1():
   BFS explored the most nodes as it searches level by level
   without any directional guidance, making it the slowest.
 
-  Dijkstra is the fastest as it does not have an energy constraint,
-  making it a simpler problem to solve compared to A* and BFS.
+  Dijkstra is the fastest as it does not account for any
+  energy constraint, resulting in simpler and faster node expansion.
     """)
     
     print("\n" + "=" * 60)
