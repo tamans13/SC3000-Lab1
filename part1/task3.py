@@ -1,7 +1,5 @@
 """
-
 A* Search with Energy Budget Constraint
-
 """
 
 import json
