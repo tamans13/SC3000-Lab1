@@ -22,6 +22,7 @@ import json
 import heapq
 import math
 import os
+import time
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -48,11 +49,12 @@ def run():
     # pareto[node] = list of (dist, energy) non-dominated labels
     # prev[(node, dist, energy)] = parent state tuple
 
-    pareto = {SOURCE: [(0, 0)]}
-    prev   = {(SOURCE, 0, 0): None}
-    pq     = [(h(SOURCE), 0, 0, SOURCE)]
-
-    best_label = None
+    pareto         = {SOURCE: [(0, 0)]}
+    prev           = {(SOURCE, 0, 0): None}
+    pq             = [(h(SOURCE), 0, 0, SOURCE)]
+    best_label     = None
+    nodes_expanded = 0
+    nodes_pushed   = 1      # source is pushed initially
 
     def dominated(node, nd, ne):
         # A label is dominated if another label has BOTH lower dist AND lower energy
@@ -70,6 +72,8 @@ def run():
         pareto[node].append((nd, ne))
         return True
 
+    t0 = time.time()
+
     while pq:
         f, g, e, u = heapq.heappop(pq)
 
@@ -77,6 +81,8 @@ def run():
         if not any(abs(pd - g) < 1e-9 and pe == e
                    for (pd, pe) in pareto.get(u, [])):
             continue
+
+        nodes_expanded += 1
 
         if u == TARGET:
             best_label = (g, e)
@@ -94,10 +100,14 @@ def run():
             if add_label(v, ng, ne):
                 prev[(v, ng, ne)] = (u, g, e)
                 heapq.heappush(pq, (ng + h(v), ng, ne, v))
+                nodes_pushed += 1
+
+    elapsed = time.time() - t0
 
     # ── Reconstruct path ──────────────────────────────────────────
     if best_label is None:
         print("No feasible path found within the energy budget.")
+        return None
     else:
         path  = []
         state = (TARGET, best_label[0], best_label[1])
@@ -113,6 +123,12 @@ def run():
         print(f"Shortest path: {'->'.join(path)}")
         print(f"Shortest distance: {total_dist}")
         print(f"Total energy cost: {total_cost}")
+
+        return {
+            'nodes_expanded': nodes_expanded,
+            'nodes_pushed':   nodes_pushed,
+            'time':           elapsed
+        }
 
 if __name__ == '__main__':
     run()
