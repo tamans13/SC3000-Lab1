@@ -1,16 +1,7 @@
 """
-SC3000 Lab Assignment 1 – Part 1, Task 2
+
 Breadth-First Search (BFS) with Energy Budget Constraint
 
-BFS explores nodes level by level using a FIFO queue.
-It finds the shortest path that stays within the energy budget.
-
-Pruning rule: for each node, we only enqueue it if we are
-arriving with LESS energy than any previous visit. If we
-have already reached a node with lower energy, there is no
-reason to explore it again via a more energy-costly route.
-
-Source: '1'   Target: '50'   Energy Budget: 287932
 """
 
 import json
