@@ -18,26 +18,49 @@ from part2.gridworld import (
 def solve_part1():
     from part1 import task1, task2, task3
 
-    print("PART 1: FINDING A SHORTEST PATH WITH AN ENERGY BUDGET")
+    print("=" * 60)
+    print("PART 1: SHORTEST PATH WITH AN ENERGY BUDGET")
+    print("=" * 60)
 
     print("\n" + "=" * 60)
     print("TASK 1: Dijkstra (No Energy Constraint)")
     print("=" * 60)
-    task1.run()
+    s1 = task1.run()
 
     print("\n" + "=" * 60)
     print("TASK 2: BFS (With Energy Constraint)")
     print("=" * 60)
-    task2.run()
+    s2 = task2.run()
 
     print("\n" + "=" * 60)
     print("TASK 3: A* (With Energy Constraint)")
     print("=" * 60)
-    task3.run()
-    
+    s3 = task3.run()
+
+    print("\n" + "=" * 60)
+    print("COMPARATIVE ANALYSIS")
+    print("=" * 60)
+    print(f"\n  {'Algorithm':<20} {'Nodes Expanded':>15} {'Nodes Pushed':>13} {'Time (s)':>10}")
+    print("  " + "-" * 60)
+    print(f"  {'Task 1 Dijkstra':<20} {s1['nodes_expanded']:>15,} {s1['nodes_pushed']:>13,} {s1['time']:>10.4f}")
+    print(f"  {'Task 2 BFS':<20} {s2['nodes_expanded']:>15,} {s2['nodes_pushed']:>13,} {s2['time']:>10.4f}")
+    print(f"  {'Task 3 A*':<20} {s3['nodes_expanded']:>15,} {s3['nodes_pushed']:>13,} {s3['time']:>10.4f}")
+    print(f"""
+  A* explored the fewest nodes ({s3['nodes_expanded']:,}), compared to BFS ({s2['nodes_expanded']:,})
+  and Dijkstra ({s1['nodes_expanded']:,}), demonstrating the effectiveness of the
+  Euclidean heuristic in guiding the search toward the target.
+
+  BFS explored the most nodes as it searches level by level
+  without any directional guidance, making it the slowest.
+
+  Dijkstra is faster than BFS but slower than A* since it has
+  no heuristic and expands nodes purely by distance.
+    """)
+
     print("\n" + "=" * 60)
     print("SUMMARY")
     print("=" * 60)
+    
     print("""
   Task 1 (Dijkstra):
     Finds the globally optimal shortest path from node 1 to node 50
