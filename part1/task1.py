@@ -1,11 +1,6 @@
 """
-SC3000 Lab Assignment 1 – Part 1, Task 1
 Dijkstra's Algorithm (no energy constraint)
 
-Finds the shortest distance path from SOURCE to TARGET,
-ignoring energy cost entirely.
-
-Source: '1'   Target: '50'
 """
 
 import json
