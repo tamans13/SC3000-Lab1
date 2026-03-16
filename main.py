@@ -18,9 +18,7 @@ from part2.gridworld import (
 def solve_part1():
     from part1 import task1, task2, task3
 
-    print("=" * 60)
     print("PART 1: SHORTEST PATH WITH AN ENERGY BUDGET")
-    print("=" * 60)
 
     print("\n" + "=" * 60)
     print("TASK 1: Dijkstra (No Energy Constraint)")
