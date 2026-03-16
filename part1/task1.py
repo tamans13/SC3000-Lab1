@@ -12,6 +12,7 @@ import json
 import heapq
 import math
 import os
+import time
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -28,10 +29,14 @@ def run():
     # dist[node] = best known distance to reach node so far
     # prev[node] = parent node on the best path
 
-    INF  = math.inf
-    dist = {SOURCE: 0}
-    prev = {SOURCE: None}
-    pq   = [(0, SOURCE)]
+    INF           = math.inf
+    dist          = {SOURCE: 0}
+    prev          = {SOURCE: None}
+    pq            = [(0, SOURCE)]
+    nodes_expanded = 0
+    nodes_pushed   = 1      # source is pushed initially
+
+    t0 = time.time()
 
     while pq:
         d, u = heapq.heappop(pq)
@@ -43,12 +48,17 @@ def run():
         if d > dist.get(u, INF):
             continue
 
+        nodes_expanded += 1
+
         for v in G.get(u, []):
             nd = d + Dist[f'{u},{v}']
             if nd < dist.get(v, INF):
                 dist[v] = nd
                 prev[v] = u
                 heapq.heappush(pq, (nd, v))
+                nodes_pushed += 1
+
+    elapsed = time.time() - t0
 
     # ── Reconstruct path ──────────────────────────────────────────
     path, node = [], TARGET
@@ -64,6 +74,12 @@ def run():
     print(f"Shortest path: {'->'.join(path)}")
     print(f"Shortest distance: {total_dist}")
     print(f"Total energy cost: {total_cost}")
+
+    return {
+        'nodes_expanded': nodes_expanded,
+        'nodes_pushed':   nodes_pushed,
+        'time':           elapsed
+    }
 
 if __name__ == '__main__':
     run()
